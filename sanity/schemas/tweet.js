@@ -13,6 +13,7 @@ export default {
       title: "Block Tweet",
       description: "ADMIN Controls: Toggle if Tweet is deemed inappropriate",
       type: "boolean",
+      initialValue: false,
     },
     {
       name: "username",
