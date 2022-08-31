@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import TimeAgo from "react-timeago";
-import { Tweet } from "../types";
+import { Comment, Tweet } from "../types";
 
 import {
   ChatAlt2Icon,
@@ -9,11 +10,25 @@ import {
   UploadIcon,
 } from "@heroicons/react/outline";
 
+import { fetchComments } from "../utils/fetchComments";
+
 interface Props {
   tweet: Tweet;
 }
 
 const Tweet = ({ tweet }: Props) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  const refreshComments = async () => {
+    const comments: Comment[] = await fetchComments(tweet._id);
+    setComments(comments);
+  };
+
+  useEffect(() => {
+    refreshComments();
+  }, []);
+
+  console.log("Comments ===>", comments);
   return (
     <div className="flex flex-col space-x-3 border-y border-gray-100 p-5">
       <div className="flex space-x-3">
@@ -53,7 +68,7 @@ const Tweet = ({ tweet }: Props) => {
       <div className=" mt-5 flex justify-between">
         <div className="flex cursor-pointer items-center space-x-3 text-gray-400">
           <ChatAlt2Icon className="h-5 w-5" />
-          <p>5</p>
+          <p>{comments.length}</p>
         </div>
         <div className="flex cursor-pointer items-center space-x-3 text-gray-400">
           <SwitchHorizontalIcon className="h-5 w-5" />
@@ -65,6 +80,38 @@ const Tweet = ({ tweet }: Props) => {
           <UploadIcon className="h-5 w-5" />
         </div>
       </div>
+
+      {/* Comment Box logic */}
+      {comments?.length > 0 && (
+        <div className="my-5 mt-2 max-h-44 space-y-5 overflow-y-scroll border-t border-gray-100 p-5">
+          {comments.map((comment) => (
+            <div key={comment._id} className="flex space-x-2 relative">
+              <hr className="absolute left-5 top-10 h-8 border-x border-twitter/30" />
+              <div className="relative mt-2 h-7 w-7 rounded-full object-cover overflow-hidden">
+                <Image
+                  src={comment.profileImg}
+                  alt={comment.username}
+                  layout="fill"
+                />
+              </div>
+              <div>
+                <div className="flex items-center space-x-1">
+                  <p className="mr-1 font-bold">{comment.username}</p>
+                  <p className="hidden text-sm text-gray-400 lg:inline">
+                    {" "}
+                    @{comment.username.replace(/\s+/, "").toLocaleLowerCase()}
+                  </p>
+                  <TimeAgo
+                    className="text-sm text-gray-500"
+                    date={comment._createdAt}
+                  />
+                </div>
+                <p>{comment.comment}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
