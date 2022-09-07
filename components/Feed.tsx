@@ -11,8 +11,6 @@ interface Props {
 }
 
 const Feed = ({ tweets: tweetProps }: Props) => {
-  console.log({ tweetProps });
-
   const [tweets, setTweets] = useState<Tweet[]>(tweetProps);
 
   const handleRefresh = async () => {
